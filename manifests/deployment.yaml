@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goecho
+  labels:
+    app: goecho
+    kubernetes.azure.com/generator: devhub
+  namespace: namespace-workflow-1726778069399
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goecho
+  template:
+    metadata:
+      labels:
+        app: goecho
+    spec:
+      containers:
+        - name: goecho
+          image: thgambletest.azurecr.io/goecho:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
