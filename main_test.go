@@ -105,6 +105,31 @@ func TestMethodNotAllowed(t *testing.T) {
 	}
 }
 
+// Test that 405 responses from /echo/:statement advertise the allowed method
+func TestMethodNotAllowedIncludesAllowHeader(t *testing.T) {
+	handler := setupTestServer()
+	req := httptest.NewRequest("POST", "/echo/hello", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	resp := w.Result()
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusMethodNotAllowed {
+		t.Errorf("Expected status 405 Method Not Allowed, got %d", resp.StatusCode)
+	}
+
+	if allow := resp.Header.Get("Allow"); allow != http.MethodGet {
+		t.Errorf("Expected Allow header %q, got %q", http.MethodGet, allow)
+	}
+
+	expectedBody := "Method not allowed\n"
+	if string(body) != expectedBody {
+		t.Errorf("Expected body %q, got %q", expectedBody, string(body))
+	}
+}
+
 // Test bad URL encoding in /echo/:statement should return 404 and call ghostHandler
 func TestEchoHandler_BadURL(t *testing.T) {
 	handler := setupTestServer()
